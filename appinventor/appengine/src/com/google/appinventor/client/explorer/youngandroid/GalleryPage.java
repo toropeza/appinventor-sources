@@ -470,8 +470,8 @@ panel
       });
       container.add(image);
 
-      if(gallery.getSystemEnvironmet() != null &&
-          gallery.getSystemEnvironmet().toString().equals("Development")){
+      if(gallery.getSystemEnvironment() != null &&
+          gallery.getSystemEnvironment().toString().equals("Development")){
         final OdeAsyncCallback<String> callback = new OdeAsyncCallback<String>(
           // failure message
           MESSAGES.galleryError()) {

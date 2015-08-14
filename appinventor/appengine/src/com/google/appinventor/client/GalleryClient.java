@@ -398,8 +398,8 @@ public class GalleryClient {
    * @return url of cloud image
    */
   public String getCloudImageURL(long galleryId) {
-    if(getSystemEnvironmet() != null &&
-        getSystemEnvironmet().toString().equals("Production")){
+    if(getSystemEnvironment() != null &&
+        getSystemEnvironment().toString().equals("Production")){
       return getGallerySettings().getCloudImageURL(galleryId);
     }else {
       return getGallerySettings().getCloudImageLocation(galleryId);
@@ -412,8 +412,8 @@ public class GalleryClient {
    * @return url of project image
    */
   public String getProjectImageURL(long projectId) {
-    if(getSystemEnvironmet() != null &&
-        getSystemEnvironmet().toString().equals("Production")){
+    if(getSystemEnvironment() != null &&
+        getSystemEnvironment().toString().equals("Production")){
       return getGallerySettings().getProjectImageURL(projectId);
     }else {
       return getGallerySettings().getProjectImageLocation(projectId);
@@ -426,18 +426,18 @@ public class GalleryClient {
    * @return url of user image
    */
   public String getUserImageURL(String userId) {
-    if(getSystemEnvironmet() != null &&
-        getSystemEnvironmet().toString().equals("Production")){
+    if(getSystemEnvironment() != null &&
+        getSystemEnvironment().toString().equals("Production")){
       return getGallerySettings().getUserImageURL(userId);
     }else {
       return getGallerySettings().getUserImageLocation(userId);
     }
   }
 
-  public void setSystemEnvironmet(String value) {
+  public void setSystemEnvironment(String value) {
     ENVIRONMENT = value;
   }
-  public String getSystemEnvironmet() {
+  public String getSystemEnvironment() {
     return this.ENVIRONMENT;
   }
 
