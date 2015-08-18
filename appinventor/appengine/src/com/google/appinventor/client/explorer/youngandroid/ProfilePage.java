@@ -336,19 +336,9 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       Ode.getInstance().getUserInfoService().getUserInformationByUserId(userId, userInformationCallback);
       sidebarTabs.setVisible(false);
       appCatalogTab = new GalleryAppTab(appCatalog, appCatalogContent,userId);
-      appCatalogTab.getButtonNext().setVisible(false); //not necesary because it loads every app at once.
       appTabs.add(appCatalog,"My Catalog");
       appTabs.selectTab(0);
       appTabs.addStyleName("gallery-app-tabs");
-      final OdeAsyncCallback<GalleryAppListResult> byAuthorCallback = new OdeAsyncCallback<GalleryAppListResult>(
-          // failure message
-          MESSAGES.galleryError()) {
-            @Override
-            public void onSuccess(GalleryAppListResult appsResult) {
-              refreshApps(appsResult,true);
-            }
-        };
-      Ode.getInstance().getGalleryService().getDeveloperApps(userId, ZERO,ZERO, byAuthorCallback);
     }
 
     //TODO this callback should combine with previous ones. Leave it out for now
@@ -623,7 +613,16 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       // Search specific
       generalTotalResultsLabel = new Label();
       container.add(generalTotalResultsLabel);
-      gallery.GetAppsByDeveloper(appCatalogCounter, NUMAPPSTOSHOW, incomingUserId);
+    
+    final OdeAsyncCallback<GalleryAppListResult> byAuthorCallback = new OdeAsyncCallback<GalleryAppListResult>(
+          // failure message
+          MESSAGES.galleryError()) {
+            @Override
+            public void onSuccess(GalleryAppListResult appsResult) {
+              refreshApps(appsResult,false);
+            }
+        };
+      Ode.getInstance().getGalleryService().getDeveloperApps(userId,appCatalogCounter ,NUMAPPSTOSHOW, byAuthorCallback);
       container.add(content);
 
       buttonNext = new Label();
@@ -640,7 +639,7 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
            if (!appCatalogExhausted) {
                 // If the next page still has apps to retrieve, do it
                 appCatalogCounter += NUMAPPSTOSHOW;
-                gallery.GetAppsByDeveloper(appCatalogCounter, NUMAPPSTOSHOW, incomingUserId);
+                Ode.getInstance().getGalleryService().getDeveloperApps(userId,appCatalogCounter ,NUMAPPSTOSHOW, byAuthorCallback);
               }
         }
       });
@@ -727,5 +726,4 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
   public void onSourceLoadCompleted(UserProject projectInfo) {
 
   }
-
 }
