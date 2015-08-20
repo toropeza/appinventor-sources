@@ -1452,7 +1452,7 @@ panel
   private void refreshApps(GalleryAppListResult appResults, int requestId, boolean refreshable) {
     switch (requestId) {
       case GalleryClient.REQUEST_BYDEVELOPER:
-        galleryGF.generateSidebar(appResults.getApps(), sidebarTabs, appsByAuthor, MESSAGES.galleryByAuthorText(), MESSAGES.galleryAppsByAuthorSidebar() + MESSAGES.gallerySingleSpaceText() + app.getDeveloperName(), refreshable, true);
+        galleryGF.generateSidebar(appResults.getApps(), sidebarTabs, appsByAuthor, MESSAGES.galleryByAuthorText(), MESSAGES.galleryAppsByAuthorSidebar() + MESSAGES.gallerySingleSpaceText() + app.getDeveloperName(), true, true);
         break;
 //      case GalleryClient.REQUEST_BYTAG: /* We are not implementing tags at initial launch */
 //        String tagTitle = "Tagged with " + tagSelected;
