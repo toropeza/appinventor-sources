@@ -958,7 +958,7 @@ panel
     final TextBox urlText = new TextBox();
     
 
-    urlText.addStyleName("action-textbox");
+    urlText.addStyleName("copylink-textbox");
     urlText.setText(shareLink);
     urlText.addClickHandler(new ClickHandler() {
       @Override
@@ -969,8 +969,8 @@ panel
 
 
 
-
-    String tweetText="Checkout my app on the AppInventor Galley!  ";
+    /*Adds a button to share the app via twitter*/
+    String tweetText="Check out my app, " + app.getTitle() + " on the AppInventor Galley!  ";
    
     String tweetLinkTag = "<a href='twitter.com/share' class='twitter-share-button' data-text='"+tweetText +"'data-hashtags='aigallery'" +
             "data-url='"+ shareLink+"'>Tweet</a>";
@@ -982,6 +982,8 @@ panel
     script.setType("text/javascript");
     script.setLang("javascript");
     doc.getBody().appendChild(script);
+
+    /*Add copy link icon*/
 
     appSharePanel.add(sharePrompt);
     appSharePanel.add(urlText);
