@@ -233,7 +233,7 @@ public class ObjectifyStorageIo implements  StorageIo {
       return tuser;
     } else {                    // If not in memcache, or tos
                                 // not yet accepted, fetch from datastore
-        tuser = new User(userId, email, null, null, 0, false, false, 0, null);
+        tuser = new User(userId, email, null, null, null,0, false, false, 0, null);
     }
     final User user = tuser;
     try {
@@ -257,6 +257,7 @@ public class ObjectifyStorageIo implements  StorageIo {
           user.setUserEmail(userData.email);
           user.setUserName(userData.name);
           user.setUserLink(userData.link);
+          user.setBio(userData.bio);
           user.setUserEmailFrequency(userData.emailFrequency);
           user.setType(userData.type);
           user.setUserTosAccepted(userData.tosAccepted || !requireTos.get());
@@ -338,7 +339,7 @@ public class ObjectifyStorageIo implements  StorageIo {
             datastore.put(userData);
           }
           // we need to change the memcache version of user
-          User user = new User(userData.id,userData.email,name, userData.link, userData.emailFrequency, userData.tosAccepted,
+          User user = new User(userData.id,userData.email,name, userData.link, userData.bio, userData.emailFrequency, userData.tosAccepted,
               false, userData.type, userData.sessionid);
           String cachekey = User.usercachekey + "|" + userId;
           memcache.put(cachekey, user, Expiration.byDeltaSeconds(60)); // Remember for one minute
@@ -362,8 +363,32 @@ public class ObjectifyStorageIo implements  StorageIo {
             datastore.put(userData);
           }
           // we need to change the memcache version of user
-          User user = new User(userData.id,userData.email,userData.name,link,userData.emailFrequency,userData.tosAccepted,
+          User user = new User(userData.id,userData.email,userData.name,link, userData.bio, userData.emailFrequency,userData.tosAccepted,
               false, userData.type, userData.sessionid);
+          String cachekey = User.usercachekey + "|" + userId;
+          memcache.put(cachekey, user, Expiration.byDeltaSeconds(60)); // Remember for one minute
+        }
+      }, true);
+    } catch (ObjectifyException e) {
+      throw CrashReport.createAndLogError(LOG, null, collectUserErrorInfo(userId), e);
+    }
+  }
+
+  @Override
+  public void setUserBio(final String userId, final String bio) {
+    try {
+      runJobWithRetries(new JobRetryHelper() {
+        @Override
+        public void run(Objectify datastore) {
+          UserData userData = datastore.find(userKey(userId));
+          if (userData != null) {
+            userData.bio = bio;
+            datastore.put(userData);
+            LOG.log(Level.INFO, "User bio successfully stored");
+          }
+          // we need to change the memcache version of user
+          User user = new User(userData.id,userData.email,userData.name, userData.link, bio, userData.emailFrequency,userData.tosAccepted,
+                  false, userData.type, userData.sessionid);
           String cachekey = User.usercachekey + "|" + userId;
           memcache.put(cachekey, user, Expiration.byDeltaSeconds(60)); // Remember for one minute
         }
@@ -385,7 +410,7 @@ public class ObjectifyStorageIo implements  StorageIo {
             datastore.put(userData);
           }
           // we need to change the memcache version of user
-          User user = new User(userData.id,userData.email,userData.name,userData.link,emailFrequency,userData.tosAccepted,
+          User user = new User(userData.id,userData.email,userData.name,userData.link, userData.bio, emailFrequency,userData.tosAccepted,
               false, userData.type, userData.sessionid);
           String cachekey = User.usercachekey + "|" + userId;
           memcache.put(cachekey, user, Expiration.byDeltaSeconds(60)); // Remember for one minute
@@ -477,6 +502,27 @@ public class ObjectifyStorageIo implements  StorageIo {
       throw CrashReport.createAndLogError(LOG, null, collectUserErrorInfo(userId), e);
     }
     return link.t;
+  }
+
+  @Override
+  public String getUserBio(final String userId) {
+    final Result<String> bio = new Result<String>();
+    try {
+      runJobWithRetries(new JobRetryHelper() {
+        @Override
+        public void run(Objectify datastore) {
+          UserData userData = datastore.find(UserData.class, userId);
+          if (userData != null) {
+            bio.t = userData.bio;
+          } else {
+            bio.t = "unknown";
+          }
+        }
+      }, true);
+    } catch (ObjectifyException e) {
+      throw CrashReport.createAndLogError(LOG, null, collectUserErrorInfo(userId), e);
+    }
+    return bio.t;
   }
 
   @Override

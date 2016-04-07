@@ -118,6 +118,20 @@ public interface StorageIo {
   void setUserLink(String userId, String link);
 
   /**
+   * Sets the stored bio for user with id userId
+   *
+   */
+  void setUserBio(String userId, String bio);
+
+  /**
+   * Returns a string with the user's bio.
+   *
+   * @param userId user id
+   * @return bio
+   */
+  String getUserBio(String userId);
+
+  /**
    * Returns the email notification frequency
    *
    * @param userId user id

@@ -1881,6 +1881,10 @@ public interface OdeMessages extends Messages {
   @Description("label of more info link")
   String labelMoreInfoLink();
 
+  @DefaultMessage("Biography")
+  @Description("label for the user's profile biography")
+  String labelProfileBio();
+
   @DefaultMessage("App Inventor will send you a notification "
       + "when the apps you have posted are liked or downloaded. "
       + "Below, you can enable/disable this feature and you can "

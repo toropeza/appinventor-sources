@@ -26,6 +26,9 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
   // user introduction link
   private String link;
 
+  // user biography
+  private String bio;
+
   // email notification frequency
   private int emailFrequency;
 
@@ -58,7 +61,7 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
    * @param tosAccepted TOS accepted?
    * @param sessionId client session Id
    */
-  public User(String id, String email, String name, String link, int emailFrequency, boolean tosAccepted, boolean isAdmin, int type, String sessionId) {
+  public User(String id, String email, String name, String link, String bio ,int emailFrequency, boolean tosAccepted, boolean isAdmin, int type, String sessionId) {
     this.id = id;
     this.email = email;
     if (name==null)
@@ -68,6 +71,7 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
     this.tosAccepted = tosAccepted;
     this.isAdmin = isAdmin;
     this.link = link;
+    this.bio = bio;
     this.emailFrequency = emailFrequency;
     this.type = type;
     this.sessionId = sessionId;
@@ -143,6 +147,22 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
    */
   public void setUserLink(String link) {
     this.link = link;
+  }
+
+  /**
+   * Returns the user's bio.
+   *
+   * @return user bio
+   */
+  public String getBio() {
+    return bio;
+  }
+
+  /**
+   * Sets the user's bio.
+   */
+  public void setBio(String bio) {
+    this.bio = bio;
   }
 
   /**
@@ -273,6 +293,6 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
   }
 
   public User copy() {
-    return new User(id, email, name, link, emailFrequency, tosAccepted, isAdmin, type, sessionId);
+    return new User(id, email, name, link, bio,emailFrequency, tosAccepted, isAdmin, type, sessionId);
   }
 }

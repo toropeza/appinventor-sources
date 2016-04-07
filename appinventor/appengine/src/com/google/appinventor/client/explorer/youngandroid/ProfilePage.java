@@ -47,6 +47,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -129,12 +130,15 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
   Label userContentHeader = new Label();
   Label usernameLabel = new Label();
   Label userLinkLabel = new Label();
+  Label userBioLabel = new Label();
+  Label userBioContent = new Label();
   Label userEmailDescriptionLabel = new Label();
   Label userEmailFrequencyPrefixLabel = new Label();
   Label userEmailFrequencySuffixLabel = new Label();
   Button editProfile = new Button(MESSAGES.buttonEditProfile());
   final TextBox userNameBox = new TextBox();
   final TextBox userLinkBox = new TextBox();
+  final TextArea userBioBox = new TextArea();
   final TextBox userEmailFrequencyBox = new TextBox();
   final Label userNameDisplay = new Label();
   Anchor userLinkDisplay = new Anchor();
@@ -183,6 +187,7 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       userContentHeader.setText(MESSAGES.labelEditYourProfile());
       usernameLabel.setText(MESSAGES.labelYourDisplayName());
       userLinkLabel.setText(MESSAGES.labelMoreInfoLink());
+      userBioLabel.setText(MESSAGES.labelProfileBio());
       userEmailDescriptionLabel.setText(MESSAGES.labelEmailDescription());
       userEmailFrequencyPrefixLabel.setText(MESSAGES.labelEmailFrequencyPrefix());
       userEmailFrequencySuffixLabel.setText(MESSAGES.labelEmailFrequencySuffix());
@@ -208,6 +213,17 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
                 }
             };
            ode.getUserInfoService().storeUserName(userNameBox.getText(), userNameUpdateCallback);
+
+          // Store the name value of user, modify database
+          final OdeAsyncCallback<Void> userBioUpdateCallback = new OdeAsyncCallback<Void>(
+                  // failure message
+                  MESSAGES.galleryError()) {
+            @Override
+            public void onSuccess(Void arg0){
+              OdeLog.log("user bio update success");
+            }
+          };
+          Ode.getInstance().getUserInfoService().storeUserBio(userBioBox.getText(), userBioUpdateCallback);
 
           // Store the link value of user, modify database
           final OdeAsyncCallback<Void> userLinkUpdateCallback = new OdeAsyncCallback<Void>(
@@ -244,6 +260,8 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       profileInfo.add(userNameBox);
       profileInfo.add(userLinkLabel);
       profileInfo.add(userLinkBox);
+      profileInfo.add(userBioLabel);
+      profileInfo.add(userBioBox);
       profileInfo.add(userEmailDescriptionLabel);
       profileInfo.add(userEmailFrequencyPrefixLabel);
       profileInfo.add(userEmailFrequencyBox);
@@ -258,6 +276,8 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       profileInfo.add(userContentHeader);
       profileInfo.add(userLinkLabel);
       profileInfo.add(userLinkDisplay);
+      profileInfo.add(userBioLabel);
+      profileInfo.add(userBioContent);
       profileInfo.add(editProfile);
     }
 
@@ -278,6 +298,8 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
     userNameDisplay.addStyleName("profile-textdisplay");
     userLinkLabel.addStyleName("profile-textlabel");
     userLinkBox.addStyleName("profile-textbox");
+    userBioLabel.addStyleName("profile-textlabel");
+    userBioBox.addStyleName("profile-bio-textarea");
     userLinkDisplay.addStyleName("profile-textdisplay");
     userEmailDescriptionLabel.addStyleName("profile-textlabel-emaildescription");
     userEmailFrequencyPrefixLabel.addStyleName("profile-textlabel");
@@ -322,6 +344,12 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
             userContentHeader.setText(user.getUserName());
             makeValidLink(userLinkDisplay, user.getUserLink());
             userEmailFrequencyBox.setText(String.valueOf(user.getUserEmailFrequency()));
+            String bio = user.getBio();
+            if (bio == null)
+              bio = "N/A";
+            userBioLabel.setText(MESSAGES.labelProfileBio() + ":");
+            userBioContent.setStyleName("profile-bio-public");
+            userBioContent.setText(bio);
          }
     };
     if (editStatus == PRIVATE) {
@@ -330,6 +358,7 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       userId = currentUser.getUserId();
       userNameBox.setText(currentUser.getUserName());
       userLinkBox.setText(currentUser.getUserLink());
+      userBioBox.setText(currentUser.getBio());
       userEmailFrequencyBox.setText(String.valueOf(currentUser.getUserEmailFrequency()));
     } else {
       // Public state
@@ -648,7 +677,7 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
 
   /**
    * Loads the proper tab GUI with gallery's app data.
-   * @param apps: list of returned gallery apps from callback.
+   * @param appsResult: list of returned gallery apps from callback.
    */
   private void refreshApps(GalleryAppListResult appsResult, boolean refreshable) {
         appCatalogTab.setGeneralTotalResultsLabel(appsResult.getTotalCount());

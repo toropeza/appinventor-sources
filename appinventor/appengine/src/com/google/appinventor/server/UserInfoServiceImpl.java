@@ -125,8 +125,17 @@ public class UserInfoServiceImpl extends OdeRemoteServiceServlet implements User
   }
 
   /**
+   * Stores the user's bio.
+   * @param bio  user's link
+   */
+  @Override
+  public void storeUserBio(String bio) {
+    storageIo.setUserBio(userInfoProvider.getUserId(), bio);
+  }
+
+  /**
    * Stores the user's link.
-   * @param name  user's link
+   * @param link  user's link
    */
   @Override
   public void storeUserLink(String link) {
