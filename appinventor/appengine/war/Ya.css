@@ -1466,10 +1466,10 @@ textarea::-webkit-input-placeholder {
   background-color: #8fc202;
   margin-bottom: 4px;
   clear: both;
+  padding:5px;
 }
 
 .search-compontent {
-  margin:5px 0 5px 0;
 }
 
 /* Gallery-specific styles */
@@ -2308,4 +2308,28 @@ textarea::-webkit-input-placeholder {
   line-height: 1.75;
   color: #666;
   margin-bottom: 20px;
+}
+.gallery-toolbar {
+  width: 950px;
+  margin: 0 auto;
+  padding:5px;
+}
+.gallery-toolbar-icon {
+  float:right;
+  cursor: pointer;
+  border-radius: 20px;
+  margin-left: 65px;
+  width:35px;
+}
+.gallery-toolbar-name {
+  float: right;
+  color: white;
+  cursor: pointer;
+  margin: 8px;
+  margin-right:12%;
+}
+.gallery-name-length-error{
+  float: right;
+  margin-right: 12%;
+  color: red;
 }

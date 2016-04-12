@@ -7,9 +7,7 @@
 package com.google.appinventor.client;
 
 import java.util.Random;
-import static com.google.appinventor.client.Ode.MESSAGES;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.appinventor.client.boxes.AssetListBox;
@@ -325,6 +323,9 @@ public class Ode implements EntryPoint {
       @Override
       public void onSuccess(GallerySettings settings) {
         gallerySettings = settings;
+        //set the user avatar image
+        galleryPageToolbar.setUserAvatar(gallerySettings.getUserImageURL(user.getUserId()));
+        galleryListToolbar.setUserAvatar(gallerySettings.getUserImageURL(user.getUserId()));
         if(gallerySettings.galleryEnabled() == true){
           ProjectListBox.getProjectListBox().getProjectList().setPublishedHeaderVisible(true);
           projectToolbar.setPublishOrUpdateButtonVisible(true);
@@ -1869,7 +1870,7 @@ public class Ode implements EntryPoint {
    * displayed.
    *
    * @param title The title for the dialog box
-   * @param message The message to display
+   * @param messageString The message to display
    * @param buttonString the name of the button, i.e., "OK"
    */
 

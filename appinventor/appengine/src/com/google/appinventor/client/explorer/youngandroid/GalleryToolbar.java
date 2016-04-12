@@ -12,8 +12,11 @@ import java.util.List;
 import com.google.appinventor.client.GalleryClient;
 import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.boxes.GalleryListBox;
+import com.google.appinventor.shared.rpc.user.User;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ErrorEvent;
+import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
@@ -21,6 +24,8 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 
 /**
@@ -33,25 +38,40 @@ public class GalleryToolbar extends Composite {
   public static List<GalleryToolbar> allSearchToolbars = new ArrayList<GalleryToolbar>();  //store the reference of all creating toolbar
   final TextBox searchText;
   final Button searchButton;
+  final Image profileAvatar;
+  final Label name;
 
   /**
    * Initializes and assembles all commands into buttons in the toolbar.
    */
   public GalleryToolbar() {
+    final User user = Ode.getInstance().getUser();
+    String username = user.getUserName();
+    final String userId = user.getUserId();
+
     allSearchToolbars.add(this);
     HorizontalPanel toolbar = new HorizontalPanel();
     toolbar.setWidth("100%");
     toolbar.setStylePrimaryName("ya-GalleryToolbar");
 
-    FlowPanel searchPanel = new FlowPanel();
+    FlowPanel actionPanel = new FlowPanel();
     searchText = new TextBox();
     searchText.addStyleName("gallery-search-textarea");
-    searchButton = new Button("Search for apps");
+    searchButton = new Button("Search apps");
     searchButton.addStyleName("search-compontent");
-    searchPanel.add(searchText);
-    searchPanel.add(searchButton);
-    searchPanel.addStyleName("gallery");
-    toolbar.add(searchPanel);
+    profileAvatar = new Image();
+    profileAvatar.addStyleName("gallery-toolbar-icon");
+    if (username.length() > User.USERNAME_MAX){
+      username = username.substring(0, User.USERNAME_MAX-1) + "...";
+    }
+    name = new Label(username);
+    name.addStyleName("gallery-toolbar-name");
+    actionPanel.add(name);
+    actionPanel.add(profileAvatar);
+    actionPanel.add(searchText);
+    actionPanel.add(searchButton);
+    actionPanel.addStyleName("gallery-toolbar");
+    toolbar.add(actionPanel);
     searchButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
@@ -84,6 +104,19 @@ public class GalleryToolbar extends Composite {
         }
       }
     });
+    profileAvatar.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        //switch to public view of profile
+        Ode.getInstance().switchToUserProfileView(userId, ProfilePage.PUBLIC);
+      }
+    });
+    name.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        Ode.getInstance().switchToUserProfileView(userId, ProfilePage.PUBLIC);
+      }
+    });
     initWidget(toolbar);
   }
 
@@ -102,4 +135,17 @@ public class GalleryToolbar extends Composite {
   public Button getSearchButton(){
     return searchButton;
   }
+
+  public void setUserAvatar(String url){
+    profileAvatar.setUrl(url);
+    profileAvatar.addErrorHandler(new ErrorHandler() {
+      @Override
+      public void onError(ErrorEvent event) {
+        profileAvatar.setResource(Ode.getImageBundle().profileIcon());
+      }
+    });
+  }
+
+
+
 }

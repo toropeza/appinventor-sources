@@ -5775,4 +5775,8 @@ public interface OdeMessages extends Messages {
     "function into the indefinite future.")
   @Description("")
   String firebaseExperimentalWarning();
+
+  @DefaultMessage("Username too long")
+  @Description("displayed when the user tried to set too long of a username")
+  String userNameLengthError();
 }

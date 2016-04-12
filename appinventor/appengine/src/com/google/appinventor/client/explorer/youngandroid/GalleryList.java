@@ -80,6 +80,7 @@ public class GalleryList extends Composite implements GalleryRequestListener {
   public static final int REQUEST_ALL = 9;
   public static final int REQUEST_REMIXED_TO = 10;
   public static final int REQUEST_TUTORIAL = 11;
+  public static final int SEARCH_TAB = 4;
 
   private int appRecentCounter = 0;
   private int appFeaturedCounter = 0;
@@ -92,6 +93,7 @@ public class GalleryList extends Composite implements GalleryRequestListener {
   private boolean appPopularExhausted = false;
   private boolean appSearchExhausted = false;
   private boolean appTutorialExhausted = false;
+  private boolean searchTabVisible = false;
   public static final int NUMAPPSTOSHOW = 10;
 
   /**
@@ -140,7 +142,6 @@ public class GalleryList extends Composite implements GalleryRequestListener {
     appTabs.add(appTutorial,"Tutorials");
     appTabs.add(appFeatured, "Featured");
     appTabs.add(appPopular, "Popular");
-    appTabs.add(appSearch, "Search");
     appTabs.selectTab(0);
     appTabs.addStyleName("gallery-app-tabs");
     galleryGUI.add(appTabs);
@@ -493,6 +494,11 @@ public class GalleryList extends Composite implements GalleryRequestListener {
    * @param index
    */
   public void setSelectTabIndex(int index){
+    //add results tab
+    if (searchTabVisible == false && index == SEARCH_TAB){
+      appTabs.add(appSearch, "Results");
+      searchTabVisible = true;
+    }
     appTabs.selectTab(index);
   }
   /**

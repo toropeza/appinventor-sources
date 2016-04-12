@@ -514,4 +514,10 @@ public interface Images extends Resources {
   @Source("com/google/appinventor/images/proximitysensor.png")
   ImageResource proximitysensor();
 
+  /**
+   * Icon for Gallery profile icon
+   */
+  @Source("com/google/appinventor/images/profile_icon.png")
+  ImageResource profileIcon();
+
 }

@@ -52,6 +52,8 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
   public static final int USER = 0;
   public static final int MODERATOR = 1;
   public static final int DEFAULT_EMAIL_NOTIFICATION_FREQUENCY = 5;
+  //largest amount of characters for a username
+  public static final int USERNAME_MAX = 50;
 
   /**
    * Creates a new user data transfer object.

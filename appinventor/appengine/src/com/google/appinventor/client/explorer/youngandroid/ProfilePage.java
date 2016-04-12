@@ -129,6 +129,7 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
   // the majorContentCard has a label and namebox
   Label userContentHeader = new Label();
   Label usernameLabel = new Label();
+  Label userNameError = new Label(MESSAGES.userNameLengthError());
   Label userLinkLabel = new Label();
   Label userBioLabel = new Label();
   Label userBioContent = new Label();
@@ -212,7 +213,11 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
                   profileSubmit.setEnabled(true);
                 }
             };
-           ode.getUserInfoService().storeUserName(userNameBox.getText(), userNameUpdateCallback);
+          if (userNameBox.getText().length() > User.USERNAME_MAX){
+            userNameError.setVisible(true);
+          }else {
+            ode.getUserInfoService().storeUserName(userNameBox.getText(), userNameUpdateCallback);
+          }
 
           // Store the name value of user, modify database
           final OdeAsyncCallback<Void> userBioUpdateCallback = new OdeAsyncCallback<Void>(
@@ -258,6 +263,8 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       profileInfo.add(userContentHeader);
       profileInfo.add(usernameLabel);
       profileInfo.add(userNameBox);
+      profileInfo.add(userNameError);
+      userNameError.setVisible(false);
       profileInfo.add(userLinkLabel);
       profileInfo.add(userLinkBox);
       profileInfo.add(userBioLabel);
@@ -294,6 +301,7 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
     mainContent.addStyleName("gallery-content-details");
     userContentHeader.addStyleName("app-title");
     usernameLabel.addStyleName("profile-textlabel");
+    userNameError.addStyleName("gallery-name-length-error");
     userNameBox.addStyleName("profile-textbox");
     userNameDisplay.addStyleName("profile-textdisplay");
     userLinkLabel.addStyleName("profile-textlabel");
