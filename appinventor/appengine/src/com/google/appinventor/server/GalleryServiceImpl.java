@@ -33,9 +33,9 @@ import com.google.appinventor.server.flags.Flag;
 import com.google.appinventor.server.storage.GalleryStorageIo;
 import com.google.appinventor.server.storage.GalleryStorageIoInstanceHolder;
 import com.google.appinventor.shared.rpc.project.Email;
+import com.google.appinventor.shared.rpc.project.Followers;
 import com.google.appinventor.shared.rpc.project.GalleryApp;
 import com.google.appinventor.shared.rpc.project.GalleryAppListResult;
-import com.google.appinventor.shared.rpc.project.GalleryAppReport;
 import com.google.appinventor.shared.rpc.project.GalleryComment;
 import com.google.appinventor.shared.rpc.project.GalleryModerationAction;
 import com.google.appinventor.shared.rpc.project.GalleryReportListResult;
@@ -43,6 +43,7 @@ import com.google.appinventor.shared.rpc.project.GalleryService;
 import com.google.appinventor.shared.rpc.project.GallerySettings;
 import com.google.appinventor.shared.rpc.project.ProjectSourceZip;
 import com.google.appinventor.shared.rpc.project.RawFile;
+import com.google.appinventor.shared.rpc.project.GalleryProfileMeta;
 
 /**
  * The implementation of the RPC service which runs on the server.
@@ -275,6 +276,67 @@ public class GalleryServiceImpl extends OdeRemoteServiceServlet implements Galle
   @Override
   public GalleryAppListResult getMostLikedApps(int start, int count) {
     return galleryStorageIo.getMostLikedApps(start,count);
+  }
+
+  /**
+   * Adds the followerId to the user's list of followers
+   * @param userID The user who added a new follower
+   * @param followerId The userId to be followed
+   * */
+  @Override
+  public void addFollower(String userID, String followerId) {
+    galleryStorageIo.addFollower(userID, followerId);
+  }
+
+  /**
+   * Checks to see if the user is following the given userId
+   * @param userId The user
+   * @param followerId The id of user to check
+   * @return whether the user is following the given followerId
+   * */
+  @Override
+  public boolean isFollower(String userId, String followerId) {
+    return galleryStorageIo.isFollower(userId, followerId);
+  }
+
+  /**
+   * Grabs all of the followers of the given userId
+   * @param userId the userId to grab followers for
+   * @return the Followers object wrapping all of the users
+   * */
+  @Override
+  public Followers getFollowers(String userId) {
+    return galleryStorageIo.getFollowers(userId);
+  }
+
+  /**
+   * Grabs how many users are following the given userID
+   * @param userId The userId of the user to check
+   * @return how many followers the user has
+   * */
+  @Override
+  public Integer getFollowerCount(String userId) {
+    return galleryStorageIo.getFollowerCount(userId);
+  }
+
+  /**
+   * Grabs metadata for the user including total number of likes/downloads on all apps
+   * @param userId The userId
+   * @return the object containing all metadata for the user
+   * */
+  @Override
+  public GalleryProfileMeta getUserMeta(String userId) {
+    return galleryStorageIo.getUserMeta(userId);
+  }
+
+  /**
+   * Removed the follower for the given userId
+   * @param userId The user removing a follower
+   * @param followerId The user to unfollow
+   * */
+  @Override
+  public void removeFollower(String userId, String followerId) {
+    galleryStorageIo.removeFollower(userId, followerId);
   }
 
   /**

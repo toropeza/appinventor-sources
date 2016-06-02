@@ -1889,6 +1889,14 @@ public interface OdeMessages extends Messages {
   @Description("Edit Profile Button, only seen by profile owner")
   String buttonEditProfile();
 
+  @DefaultMessage("Follow")
+  @Description("Add Follower Button")
+  String buttonFollow();
+
+  @DefaultMessage("Following")
+  @Description("Follower Button")
+  String followingLabel();
+
   @DefaultMessage("Update Profile")
   @Description("Update Profile Button, only seen by profile owner")
   String buttonUpdateProfile();
@@ -1904,6 +1912,10 @@ public interface OdeMessages extends Messages {
   @DefaultMessage("More info link")
   @Description("label of more info link")
   String labelMoreInfoLink();
+
+  @DefaultMessage("Biography")
+  @Description("label for the user's profile biography")
+  String labelProfileBio();
 
   @DefaultMessage("App Inventor will send you a notification "
       + "when the apps you have posted are liked or downloaded. "
@@ -5800,4 +5812,7 @@ public interface OdeMessages extends Messages {
   @Description("")
   String readOnlyMode();
 
+  @DefaultMessage("Username too long")
+  @Description("displayed when the user tried to set too long of a username")
+  String userNameLengthError();
 }

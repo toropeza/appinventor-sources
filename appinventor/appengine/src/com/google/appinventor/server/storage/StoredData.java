@@ -54,6 +54,8 @@ public class StoredData {
 
     public String name;
     public String link;
+    public String bio;
+    public int numberOfFollowers;
     public int emailFrequency;
     public int type;
     String sessionid;           // uuid of active session

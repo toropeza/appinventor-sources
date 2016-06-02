@@ -7,14 +7,13 @@
 package com.google.appinventor.client;
 
 import java.util.Random;
-import static com.google.appinventor.client.Ode.MESSAGES;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.appinventor.client.boxes.AdminUserListBox;
 import com.google.appinventor.client.boxes.AssetListBox;
 import com.google.appinventor.client.boxes.BlockSelectorBox;
+import com.google.appinventor.client.boxes.FollowersBox;
 import com.google.appinventor.client.boxes.PrivateUserProfileTabPanel;
 import com.google.appinventor.client.boxes.MessagesOutputBox;
 import com.google.appinventor.client.boxes.OdeLogBox;
@@ -37,6 +36,7 @@ import com.google.appinventor.client.explorer.project.Project;
 import com.google.appinventor.client.explorer.project.ProjectChangeAdapter;
 import com.google.appinventor.client.explorer.project.ProjectManager;
 import com.google.appinventor.client.explorer.project.ProjectManagerEventAdapter;
+import com.google.appinventor.client.explorer.youngandroid.FollowersListToolbar;
 import com.google.appinventor.client.explorer.youngandroid.GalleryPage;
 import com.google.appinventor.client.explorer.youngandroid.GalleryToolbar;
 import com.google.appinventor.client.explorer.youngandroid.ProjectToolbar;
@@ -64,7 +64,6 @@ import com.google.appinventor.shared.rpc.help.HelpServiceAsync;
 import com.google.appinventor.shared.rpc.launch.LaunchService;
 import com.google.appinventor.shared.rpc.launch.LaunchServiceAsync;
 import com.google.appinventor.shared.rpc.project.FileNode;
-import com.google.appinventor.shared.rpc.project.GalleryAppListResult;
 import com.google.appinventor.shared.rpc.project.GallerySettings;
 import com.google.appinventor.shared.rpc.project.ProjectRootNode;
 import com.google.appinventor.shared.rpc.project.ProjectService;
@@ -114,7 +113,6 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.appinventor.shared.rpc.project.GalleryApp;
@@ -195,6 +193,8 @@ public class Ode implements EntryPoint {
   private static final int PRIVATEUSERPROFILE = 5;
   private static final int MODERATIONPAGE = 6;
   private static final int USERADMIN = 7;
+  private static final int FOLLOWERSPAGE = 8;
+
   private static int currentView = DESIGNER;
 
   /*
@@ -220,6 +220,7 @@ public class Ode implements EntryPoint {
   private int galleryAppTabIndex;
   private int userAdminTabIndex;
   private int userProfileTabIndex;
+  private int userFollowersTabIndex;
   private int privateUserProfileIndex;
   private int moderationPageTabIndex;
   private TopPanel topPanel;
@@ -230,6 +231,8 @@ public class Ode implements EntryPoint {
   private GalleryToolbar galleryListToolbar;
   private GalleryToolbar galleryPageToolbar;
   private AdminUserListBox uaListBox;
+  private FollowersListToolbar galleryFollowersToolbar;
+  private GalleryToolbar galleryProfileToolbar;
   private DesignToolbar designToolbar;
   private TopToolbar topToolbar;
   // Popup that indicates that an asynchronous request is pending. It is visible
@@ -338,6 +341,13 @@ public class Ode implements EntryPoint {
       @Override
       public void onSuccess(GallerySettings settings) {
         gallerySettings = settings;
+        //set the user avatar image with loaded settings
+        String avatarUrl = gallerySettings.getUserImageURL(user.getUserId());
+        galleryPageToolbar.setUserAvatar(avatarUrl);
+        galleryListToolbar.setUserAvatar(avatarUrl);
+        galleryFollowersToolbar.setUserAvatar(avatarUrl);
+        galleryProfileToolbar.setUserAvatar(avatarUrl);
+
         if(gallerySettings.galleryEnabled() == true){
           ProjectListBox.getProjectListBox().getProjectList().setPublishedHeaderVisible(true);
           projectToolbar.setPublishOrUpdateButtonVisible(true);
@@ -438,6 +448,17 @@ public class Ode implements EntryPoint {
     OdeLog.log("###########" + userId + "||||||" + editStatus);
     ProfileBox.setProfile(userId, editStatus);
     deckPanel.showWidget(userProfileTabIndex);
+  }
+
+  /**
+   * Switch to the user profile
+   * TODO: change string parameter
+   */
+  public void switchToUserFollowersView() {
+    currentView = FOLLOWERSPAGE;
+    OdeLog.log("########### Switching to followers view");
+    FollowersBox.loadFollowers();
+    deckPanel.showWidget(userFollowersTabIndex);
   }
 
   /**
@@ -950,6 +971,8 @@ public class Ode implements EntryPoint {
     VerticalPanel uVertPanel = new VerticalPanel();
     uVertPanel.setWidth("100%");
     uVertPanel.setSpacing(0);
+    galleryProfileToolbar = new GalleryToolbar();
+    uVertPanel.add(galleryProfileToolbar);
     HorizontalPanel userProfilePanel = new HorizontalPanel();
     userProfilePanel.setWidth("100%");
     userProfilePanel.add(ProfileBox.getUserProfileBox());
@@ -958,6 +981,20 @@ public class Ode implements EntryPoint {
     userProfileTabIndex = deckPanel.getWidgetCount();
     deckPanel.add(uVertPanel);
     // KM: DEBUGGING END
+
+    // User followers tab
+    VerticalPanel followersVertPanel = new VerticalPanel();
+    followersVertPanel.setWidth("100%");
+    followersVertPanel.setSpacing(0);
+    galleryFollowersToolbar = new FollowersListToolbar();
+    followersVertPanel.add(galleryFollowersToolbar);
+    HorizontalPanel userFollowersPanel = new HorizontalPanel();
+    userFollowersPanel.setWidth("100%");
+    userFollowersPanel.add(FollowersBox.getFollowersBox());
+    followersVertPanel.add(userFollowersPanel);
+
+    userFollowersTabIndex = deckPanel.getWidgetCount();
+    deckPanel.add(followersVertPanel);
 
     // Private User Profile TabPanel
     VerticalPanel ppVertPanel = new VerticalPanel();
@@ -1925,7 +1962,7 @@ public class Ode implements EntryPoint {
    * displayed.
    *
    * @param title The title for the dialog box
-   * @param message The message to display
+   * @param messageString The message to display
    * @param buttonString the name of the button, i.e., "OK"
    */
 
@@ -2076,5 +2113,20 @@ public class Ode implements EntryPoint {
   public static native void reloadWindow() /*-{
     top.location.reload();
   }-*/;
+
+  /**
+   * Updates all of the toolbars with the new name. Used when the user updates their username
+   * to update whats displayed in the toolbar without refreshing
+   * @param newUserName The new username to replace existing
+   * */
+  public static void setToolbarNames(String newUserName){
+    for (GalleryToolbar toolbar: GalleryToolbar.allSearchToolbars){
+      toolbar.setUserName(newUserName);
+    }
+    //FollowersListToolbar is of a different type
+    for (FollowersListToolbar toolbar: FollowersListToolbar.allSearchToolbars){
+      toolbar.setUserName(newUserName);
+    }
+  }
 
 }

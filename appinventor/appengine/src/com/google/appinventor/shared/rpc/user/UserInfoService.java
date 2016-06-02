@@ -67,6 +67,12 @@ public interface UserInfoService extends RemoteService {
   void storeUserLink(String link);
 
   /**
+   * Stores the user's bio.
+   * @param bio  user's bio
+   */
+  public void storeUserBio(String bio);
+
+  /**
    * Stores the user's email notification frequency.
    * @param emailFrequency  user's email frequency
    */

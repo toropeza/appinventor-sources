@@ -340,4 +340,11 @@ public interface GalleryService extends RemoteService {
 
   String getBlobServingUrl(String url);
 
+  void addFollower(String userId, String followerId);
+  boolean isFollower(String userId, String followerId);
+  Followers getFollowers(String userId);
+  void removeFollower(String userId, String followerId);
+  Integer getFollowerCount(String userId);
+  GalleryProfileMeta getUserMeta(String userId);
+
 }

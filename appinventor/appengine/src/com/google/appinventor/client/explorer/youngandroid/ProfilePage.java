@@ -26,6 +26,7 @@ import com.google.appinventor.shared.rpc.project.GalleryApp;
 import com.google.appinventor.shared.rpc.project.GalleryAppListResult;
 import com.google.appinventor.shared.rpc.project.GalleryComment;
 import com.google.appinventor.shared.rpc.project.UserProject;
+import com.google.appinventor.shared.rpc.project.GalleryProfileMeta;
 import com.google.appinventor.shared.rpc.user.User;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.InputElement;
@@ -35,6 +36,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ErrorEvent;
 import com.google.gwt.event.dom.client.ErrorHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -42,11 +47,11 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -118,6 +123,8 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
   FocusPanel profileHeaderWrapper = new FocusPanel();
   // Other basic user profile information
   FlowPanel profileInfo = new FlowPanel();
+  //basic user stats
+  FlowPanel profileMeta = new FlowPanel();
 
   FocusPanel appCardWrapper = new FocusPanel();
   FlowPanel imageUploadBox = new FlowPanel();
@@ -129,16 +136,22 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
   Label userContentHeader = new Label();
   Label usernameLabel = new Label();
   Label userLinkLabel = new Label();
+  Label userBioLabel = new Label();
+  Label numberOfFollowers = new Label();
+  Label userBioContent = new Label();
   Label userEmailDescriptionLabel = new Label();
   Label userEmailFrequencyPrefixLabel = new Label();
   Label userEmailFrequencySuffixLabel = new Label();
   Button editProfile = new Button(MESSAGES.buttonEditProfile());
+  Button followerButton = new Button();
   final TextBox userNameBox = new TextBox();
   final TextBox userLinkBox = new TextBox();
+  final TextArea userBioBox = new TextArea();
   final TextBox userEmailFrequencyBox = new TextBox();
   final Label userNameDisplay = new Label();
   Anchor userLinkDisplay = new Anchor();
   final Button profileSubmit = new Button(MESSAGES.buttonUpdateProfile());
+
 
   private static final Logger LOG = Logger.getLogger(ProfilePage.class.getName());
   private static final Ode ode = Ode.getInstance();
@@ -178,26 +191,66 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
     } else  { // we are just viewing this page so setup the image
       initReadOnlyImage();
     }
+    Image followersIcon = new Image();
+    followersIcon.setResource(Ode.getImageBundle().followersIconDark());
+    followersIcon.addStyleName("gallery-meta");
+    numberOfFollowers.addStyleName("gallery-meta");
+    Image downloadImg = new Image();
+    downloadImg.setUrl("/images/numDownload.png");
+    downloadImg.addStyleName("gallery-meta");
+    Image likesImg = new Image();
+    likesImg.setUrl("/images/numLikeHollow.png");
+    likesImg.addStyleName("gallery-meta");
+    final Label numDownloads = new Label();
+    numDownloads.addStyleName("gallery-meta");
+    final Label numLikes = new Label();
+    numLikes.addStyleName("gallery-meta");
+    profileMeta.add(followersIcon);
+    profileMeta.add(numberOfFollowers);
+    profileMeta.add(downloadImg);
+    profileMeta.add(numDownloads);
+    profileMeta.add(likesImg);
+    profileMeta.add(numLikes);
 
+    OdeAsyncCallback<Integer> getFollowerCountCallback = new OdeAsyncCallback<Integer>() {
+      @Override
+      public void onSuccess(Integer totalFollowerCount) {
+        numberOfFollowers.setText(String.valueOf(totalFollowerCount));
+      }
+    };
+    Ode.getInstance().getGalleryService().getFollowerCount(userId, getFollowerCountCallback);
+    OdeAsyncCallback<GalleryProfileMeta> profileMetaCallback = new OdeAsyncCallback<GalleryProfileMeta>() {
+      @Override
+      public void onSuccess(GalleryProfileMeta profileMeta) {
+        numLikes.setText(String.valueOf(profileMeta.getTotalUserLikes()));
+        numDownloads.setText(String.valueOf(profileMeta.getTotalUserDownloads()));
+      }
+    };
+    Ode.getInstance().getGalleryService().getUserMeta(userId, profileMetaCallback);
     if (editStatus == PRIVATE) {
       userContentHeader.setText(MESSAGES.labelEditYourProfile());
       usernameLabel.setText(MESSAGES.labelYourDisplayName());
       userLinkLabel.setText(MESSAGES.labelMoreInfoLink());
+      userBioLabel.setText(MESSAGES.labelProfileBio());
       userEmailDescriptionLabel.setText(MESSAGES.labelEmailDescription());
       userEmailFrequencyPrefixLabel.setText(MESSAGES.labelEmailFrequencyPrefix());
       userEmailFrequencySuffixLabel.setText(MESSAGES.labelEmailFrequencySuffix());
       editProfile.setVisible(false);
+      followerButton.setVisible(false);
 
       profileSubmit.addClickHandler(new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
-          profileSubmit.setEnabled(false);
           if(!validEmailFrequency(userEmailFrequencyBox.getText())){
             Window.alert(MESSAGES.errorEmailFrequency());
             profileSubmit.setEnabled(true);
             return;
           }
-
+          if (userNameBox.getText().length() > User.USERNAME_MAX) {
+            Window.alert(MESSAGES.userNameLengthError());
+            return;
+          }
+          profileSubmit.setEnabled(false);
           // Store the name value of user, modify database
           final OdeAsyncCallback<Void> userNameUpdateCallback = new OdeAsyncCallback<Void>(
               // failure message
@@ -207,7 +260,19 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
                   profileSubmit.setEnabled(true);
                 }
             };
-           ode.getUserInfoService().storeUserName(userNameBox.getText(), userNameUpdateCallback);
+          ode.getUserInfoService().storeUserName(userNameBox.getText(), userNameUpdateCallback);
+          //update the toolbars
+          Ode.setToolbarNames(userNameBox.getText());
+
+          // Store the name value of user, modify database
+          final OdeAsyncCallback<Void> userBioUpdateCallback = new OdeAsyncCallback<Void>(
+                  // failure message
+                  MESSAGES.galleryError()) {
+            @Override
+            public void onSuccess(Void arg0){
+            }
+          };
+          Ode.getInstance().getUserInfoService().storeUserBio(userBioBox.getText(), userBioUpdateCallback);
 
           // Store the link value of user, modify database
           final OdeAsyncCallback<Void> userLinkUpdateCallback = new OdeAsyncCallback<Void>(
@@ -244,6 +309,8 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       profileInfo.add(userNameBox);
       profileInfo.add(userLinkLabel);
       profileInfo.add(userLinkBox);
+      profileInfo.add(userBioLabel);
+      profileInfo.add(userBioBox);
       profileInfo.add(userEmailDescriptionLabel);
       profileInfo.add(userEmailFrequencyPrefixLabel);
       profileInfo.add(userEmailFrequencyBox);
@@ -258,7 +325,11 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       profileInfo.add(userContentHeader);
       profileInfo.add(userLinkLabel);
       profileInfo.add(userLinkDisplay);
+      profileInfo.add(profileMeta);
+      profileInfo.add(userBioLabel);
+      profileInfo.add(userBioContent);
       profileInfo.add(editProfile);
+      profileInfo.add(followerButton);
     }
 
     // Add GUI layers in the "main content" container
@@ -278,12 +349,15 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
     userNameDisplay.addStyleName("profile-textdisplay");
     userLinkLabel.addStyleName("profile-textlabel");
     userLinkBox.addStyleName("profile-textbox");
+    userBioLabel.addStyleName("profile-textlabel");
+    userBioBox.addStyleName("profile-bio-textarea");
     userLinkDisplay.addStyleName("profile-textdisplay");
     userEmailDescriptionLabel.addStyleName("profile-textlabel-emaildescription");
     userEmailFrequencyPrefixLabel.addStyleName("profile-textlabel");
     userEmailFrequencySuffixLabel.addStyleName("profile-textlabel");
     userEmailFrequencyBox.addStyleName("profile-textbox-small");
     editProfile.addStyleName("profile-submit");
+    followerButton.setStyleName("add-follower");
 
     profileSubmit.addStyleName("profile-submit");
     imageUpload.addStyleName("app-image-upload");
@@ -322,6 +396,12 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
             userContentHeader.setText(user.getUserName());
             makeValidLink(userLinkDisplay, user.getUserLink());
             userEmailFrequencyBox.setText(String.valueOf(user.getUserEmailFrequency()));
+            String bio = user.getBio();
+            if (bio == null)
+              bio = "N/A";
+            userBioLabel.setText(MESSAGES.labelProfileBio() + ":");
+            userBioContent.setStyleName("profile-bio-public");
+            userBioContent.setText(bio);
          }
     };
     if (editStatus == PRIVATE) {
@@ -330,6 +410,7 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
       userId = currentUser.getUserId();
       userNameBox.setText(currentUser.getUserName());
       userLinkBox.setText(currentUser.getUserLink());
+      userBioBox.setText(currentUser.getBio());
       userEmailFrequencyBox.setText(String.valueOf(currentUser.getUserEmailFrequency()));
     } else {
       // Public state
@@ -345,6 +426,7 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
     final User user = Ode.getInstance().getUser();
     if(incomingUserId.equals(user.getUserId())){
       editProfile.setVisible(true);
+      followerButton.setVisible(false);
       editProfile.addClickHandler(new ClickHandler() {
         @Override
         public void onClick(ClickEvent clickEvent) {
@@ -353,10 +435,88 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
         }
       });
     }else{
+      followerButton.setVisible(true);
       editProfile.setVisible(false);
+      OdeAsyncCallback<Boolean> isFollowerCallback = new OdeAsyncCallback<Boolean>() {
+        @Override
+        public void onSuccess(Boolean result) {
+          if (result == true){
+            setupFollowing();
+          }else {
+            setupNotFollowing();
+          }
+        }
+      };
+      ode.getGalleryService().isFollower(user.getUserId(), userId, isFollowerCallback);
     }
 
   }
+
+  /**
+   * Called when the profile displayed is not being followed by the current user.
+   * Sets up the follower button text and click handler to "Follow" the profile displayed
+   *
+   * */
+  private void setupNotFollowing(){
+    final OdeAsyncCallback<Void> addFollowerCallBack = new OdeAsyncCallback<Void>() {
+      @Override
+      public void onSuccess(Void result) {
+        OdeLog.log("Follower added!");
+
+        //create new button to refresh click handlers
+        profileInfo.remove(followerButton);
+        followerButton = new Button();
+        followerButton.setStyleName("add-follower");
+        profileInfo.add(followerButton);
+        setupFollowing();
+      }
+    };
+    followerButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        Ode.getInstance().getGalleryService().addFollower(ode.getUser().getUserId(), userId, addFollowerCallBack);
+      }
+    });
+    followerButton.setText(MESSAGES.buttonFollow());
+  }
+
+  private void setupFollowing( ){
+    followerButton.addMouseOverHandler(new MouseOverHandler() {
+      @Override
+      public void onMouseOver(MouseOverEvent event) {
+        followerButton.setText("Unfollow");
+        followerButton.setStyleName("remove-follower");
+      }
+    });
+    followerButton.addMouseOutHandler(new MouseOutHandler() {
+      @Override
+      public void onMouseOut(MouseOutEvent event) {
+        followerButton.setText("Following");
+        followerButton.setStyleName("add-follower");
+      }
+    });
+    final OdeAsyncCallback<Void> removeFollowerCallback = new OdeAsyncCallback<Void>() {
+      @Override
+      public void onSuccess(Void result) {
+        OdeLog.log("Follower removed!");
+
+        //create new button to refresh click handlers
+        profileInfo.remove(followerButton);
+        followerButton = new Button();
+        followerButton.setStyleName("add-follower");
+        profileInfo.add(followerButton);
+        setupNotFollowing();
+      }
+    };
+    followerButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        ode.getGalleryService().removeFollower(ode.getUser().getUserId(), userId, removeFollowerCallback);
+      }
+    });
+    followerButton.setText(MESSAGES.followingLabel());
+  }
+
 
 
   /**
@@ -648,7 +808,7 @@ public class ProfilePage extends Composite/* implements GalleryRequestListener*/
 
   /**
    * Loads the proper tab GUI with gallery's app data.
-   * @param apps: list of returned gallery apps from callback.
+   * @param appsResult: list of returned gallery apps from callback.
    */
   private void refreshApps(GalleryAppListResult appsResult, boolean refreshable) {
         appCatalogTab.setGeneralTotalResultsLabel(appsResult.getTotalCount());

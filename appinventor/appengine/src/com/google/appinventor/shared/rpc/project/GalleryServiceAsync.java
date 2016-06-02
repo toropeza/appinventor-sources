@@ -232,4 +232,40 @@ public interface GalleryServiceAsync {
   void getModerationActions(long reportId, AsyncCallback<List<GalleryModerationAction>> callback);
 
   void getBlobServingUrl(String url, AsyncCallback<String> callback);
+
+  /**
+   * see @link {@link GalleryService#addFollower(String, String)}
+   * @return
+   */
+  void addFollower(String userID, String followerId, AsyncCallback<Void> callback);
+
+  /**
+   * see @link {@link GalleryService#isFollower(String, String)}
+   * @return
+   */
+  void isFollower(String userID, String followerId, AsyncCallback<Boolean> callback);
+
+  /**
+   * see @link {@link GalleryService#getFollowers(String)}
+   * @return
+  */
+  void getFollowers(String userID, AsyncCallback<Followers> callback);
+
+  /**
+   * see @link {@link GalleryService#removeFollower(String, String)}
+   * @return
+   */
+  void removeFollower(String userID, String followerId, AsyncCallback<Void> callback);
+
+  /**
+   * see @link {@link GalleryService#getFollowerCount(String)}
+   * @return
+   */
+  void getFollowerCount(String userId, AsyncCallback<Integer> callback);
+
+  /**
+   * see @link {@link GalleryService#getUserMeta(String)}
+   * @return
+   */
+  void getUserMeta(String userId, AsyncCallback<GalleryProfileMeta> callback);
 }

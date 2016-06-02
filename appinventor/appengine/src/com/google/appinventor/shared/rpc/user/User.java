@@ -26,6 +26,15 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
   // user introduction link
   private String link;
 
+  // user biography
+  private String bio;
+
+  //total likes on all apps
+  private int totalLikes;
+
+  //total downloads on all apps
+  private int totalDownloads;
+
   // email notification frequency
   private int emailFrequency;
 
@@ -58,6 +67,8 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
   public static final int USER = 0;
   public static final int MODERATOR = 1;
   public static final int DEFAULT_EMAIL_NOTIFICATION_FREQUENCY = 5;
+  //largest amount of characters for a username
+  public static final int USERNAME_MAX = 50;
 
   /**
    * Creates a new user data transfer object.
@@ -67,7 +78,7 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
    * @param tosAccepted TOS accepted?
    * @param sessionId client session Id
    */
-  public User(String id, String email, String name, String link, int emailFrequency, boolean tosAccepted, boolean isAdmin, int type, String sessionId) {
+  public User(String id, String email, String name, String link, String bio ,int emailFrequency, boolean tosAccepted, boolean isAdmin, int type, String sessionId) {
     this.id = id;
     this.email = email;
     if (name==null)
@@ -77,6 +88,7 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
     this.tosAccepted = tosAccepted;
     this.isAdmin = isAdmin;
     this.link = link;
+    this.bio = bio;
     this.emailFrequency = emailFrequency;
     this.type = type;
     this.sessionId = sessionId;
@@ -179,6 +191,22 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
    */
   public void setUserLink(String link) {
     this.link = link;
+  }
+
+  /**
+   * Returns the user's bio.
+   *
+   * @return user bio
+   */
+  public String getBio() {
+    return bio;
+  }
+
+  /**
+   * Sets the user's bio.
+   */
+  public void setBio(String bio) {
+    this.bio = bio;
   }
 
   /**
@@ -291,6 +319,22 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
     return getDefaultName(this.email);
   }
 
+  public int getTotalLikes() {
+    return totalLikes;
+  }
+
+  public void setTotalLikes(int totalLikes) {
+    this.totalLikes = totalLikes;
+  }
+
+  public int getTotalDownloads() {
+    return totalDownloads;
+  }
+
+  public void setTotalDownloads(int totalDownloads) {
+    this.totalDownloads = totalDownloads;
+  }
+
   /**
    * Get the unique session id associated with this user
    * This is used to ensure that only one session is opened
@@ -318,7 +362,7 @@ public class User implements IsSerializable, UserInfoProvider, Serializable {
   }
 
   public User copy() {
-    User retval = new User(id, email, name, link, emailFrequency, tosAccepted, isAdmin, type, sessionId);
+    User retval = new User(id, email, name, link, bio, emailFrequency, tosAccepted, isAdmin, type, sessionId);
     // We set the isReadOnly flag in the copy in this fashion so we do not have to
     // modify all the places in the source where we create a "User" object. There are
     // only a few places where we assert or read the isReadOnly flag, so we want to

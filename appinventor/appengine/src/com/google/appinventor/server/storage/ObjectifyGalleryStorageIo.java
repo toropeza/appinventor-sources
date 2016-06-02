@@ -17,6 +17,7 @@ import com.google.appinventor.server.CrashReport;
 import com.google.appinventor.server.GalleryEmail;
 import com.google.appinventor.server.GallerySearchIndex;
 import com.google.appinventor.server.flags.Flag;
+import com.google.appinventor.shared.rpc.project.Followers;
 import com.google.appinventor.shared.rpc.project.GalleryApp;
 import com.google.appinventor.shared.rpc.project.GalleryAppListResult;
 import com.google.appinventor.shared.rpc.project.GalleryAppReport;
@@ -26,6 +27,7 @@ import com.google.appinventor.shared.rpc.project.GalleryModerationAction;
 import com.google.appinventor.shared.rpc.project.Email;
 import com.google.appinventor.shared.rpc.project.GalleryReportListResult;
 import com.google.appinventor.shared.rpc.project.UserProject;
+import com.google.appinventor.shared.rpc.project.GalleryProfileMeta;
 import com.google.appinventor.shared.rpc.user.User;
 import com.google.common.annotations.VisibleForTesting;
 import com.googlecode.objectify.Key;
@@ -87,6 +89,7 @@ public class ObjectifyGalleryStorageIo implements  GalleryStorageIo {
     ObjectifyService.register(GalleryAppAttributionData.class);
     ObjectifyService.register(GalleryAppReportData.class);
     ObjectifyService.register(GalleryModerationActionData.class);
+    ObjectifyService.register(GalleryFollowerData.class);
   }
 
   // we'll need to talk to the StorageIo to get developer names, so...
@@ -373,6 +376,113 @@ public class ObjectifyGalleryStorageIo implements  GalleryStorageIo {
   }
 
   /**
+   * Adds the followerId to the user's list of followers
+   * @param userId The user who added a new follower
+   * @param followerId The userId to be followed
+   * */
+  @Override
+  public void addFollower(final String userId, final String followerId) {
+    Objectify datastore = ObjectifyService.begin();
+    GalleryFollowerData followerData = new GalleryFollowerData();
+    followerData.galleryKey = followerKey(userId);
+    followerData.userId = userId;
+    followerData.followerId = followerId;
+    datastore.put(followerData);
+  }
+
+  /**
+   * Checks to see if the user is following the given userId
+   * @param userId The user
+   * @param followerId The id of user to check
+   * @return whether the user is following the given followerId
+   * */
+  @Override
+  public boolean isFollower(String userId, String followerId) {
+    Objectify datastore = ObjectifyService.begin();
+    boolean result = false;
+    for (GalleryFollowerData followerData: datastore.query(GalleryFollowerData.class).ancestor(followerKey(userId)).filter("followerId", followerId)){
+      result = true;
+      break;
+    }
+    return result;
+  }
+
+  /**
+   * Grabs all of the followers of the given userId
+   * @param userId the userId to grab followers for
+   * @return the Followers object wrapping all of the users
+   * */
+  @Override
+  public Followers getFollowers(String userId) {
+    final Followers followers = new Followers();
+    Objectify datastore = ObjectifyService.begin();
+    int totalFollowers = 0;
+    int skipped = 0;
+    //handle the limit and start in the loop to count the total followers
+    for (GalleryFollowerData followerData: datastore.query(GalleryFollowerData.class).ancestor(followerKey(userId))){
+      totalFollowers++;
+      String followerId = followerData.followerId;
+      LOG.info("follower found: " + followerId);
+      User follower = storageIo.getUser(followerId);
+      followers.addFollower(follower);
+    }
+    followers.setTotalFollowers(totalFollowers);
+    return followers;
+  }
+
+  /**
+   * Grabs how many users are following the given userID
+   * @param userId The userId of the user to check
+   * @return how many followers the user has
+   * */
+  @Override
+  public Integer getFollowerCount(String userId) {
+    Objectify datastore = ObjectifyService.begin();
+    int totalFollowers = 0;
+    //handle the limit and start in the loop to count the total followers
+    for (GalleryFollowerData followerData: datastore.query(GalleryFollowerData.class).filter("followerId", userId)){
+      totalFollowers++;
+    }
+    return totalFollowers;
+  }
+
+  /**
+   * Grabs metadata for the user including total number of likes/downloads on all apps
+   * @param userId The userId
+   * @return the object containing all metadata for the user
+   * */
+  @Override
+  public GalleryProfileMeta getUserMeta(String userId){
+    GalleryProfileMeta galleryProfileMeta = new GalleryProfileMeta();
+    Objectify datastore = ObjectifyService.begin();
+    int totalLikes = 0;
+    int totalDownloads = 0;
+    for (GalleryAppData appData:datastore.query(GalleryAppData.class).filter("userId",userId).filter("active", true)){
+      totalLikes += appData.numLikes;
+      totalDownloads += appData.numDownloads;
+    }
+    galleryProfileMeta.setTotalUserLikes(totalLikes);
+    galleryProfileMeta.setTotalUserDownloads(totalDownloads);
+    return galleryProfileMeta;
+  }
+
+  /**
+   * Removed the follower for the given userId
+   * @param userId The user removing a follower
+   * @param followerId The user to unfollow
+   * */
+  @Override
+  public void removeFollower(String userId, String followerId) {
+    Objectify datastore = ObjectifyService.begin();
+    for (GalleryFollowerData followerData: datastore.query(GalleryFollowerData.class)
+            .ancestor(followerKey(userId))
+            .filter("followerId", followerId)){
+      datastore.delete(followerData);
+      break;
+    }
+  }
+
+  /**
    * Returns a wrapped class which contains a list of galleryApps
    * by a particular developer and total number of results in database
    * @param userId id of developer
@@ -592,6 +702,8 @@ public class ObjectifyGalleryStorageIo implements  GalleryStorageIo {
 
     return comments;
   }
+
+
 
   /**
    * increase likes to a gallery app
@@ -1320,6 +1432,10 @@ public class ObjectifyGalleryStorageIo implements  GalleryStorageIo {
 
   private Key<GalleryAppData> galleryKey(long galleryId) {
     return new Key<GalleryAppData>(GalleryAppData.class, galleryId);
+  }
+
+  private Key<GalleryFollowerData> followerKey(String galleryId) {
+    return new Key<GalleryFollowerData>(GalleryFollowerData.class, galleryId);
   }
 
   private Key<GalleryAppFeatureData> galleryFeatureKey(long galleryId) {

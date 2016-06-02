@@ -10,10 +10,13 @@ import java.util.Date;
 import java.util.List;
 
 import com.google.appinventor.client.explorer.youngandroid.GalleryPage;
+import com.google.appinventor.client.explorer.youngandroid.ProfilePage;
+import com.google.appinventor.shared.rpc.project.Followers;
 import com.google.appinventor.shared.rpc.project.GalleryApp;
 import com.google.appinventor.shared.rpc.project.GalleryAppListResult;
 import com.google.appinventor.shared.rpc.project.GalleryComment;
 import com.google.appinventor.shared.rpc.project.UserProject;
+import com.google.appinventor.shared.rpc.user.User;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -178,6 +181,68 @@ public class GalleryGuiFactory implements GalleryRequestListener {
     container.addStyleName("gallery-app-collection");
     container.addStyleName("clearfix"); /* For redesigned navigation buttons */
 
+  }
+
+  /**
+   * Loads the proper tab GUI with the user's follower data
+   * @param followers: followers
+   * @param container: the GUI panel where followers will reside.
+   * @param refreshable: refresh the container
+   */
+  public void generateFollowersList(Followers followers,
+                                    FlowPanel container, boolean refreshable) {
+    if (refreshable) {
+      // Flush the panel's content if we knew new stuff is coming in!
+      container.clear();
+    }
+    if (followers.size() == 0){
+      Label noFollowersLabel = new Label("No followers");
+      noFollowersLabel.addStyleName(".gallery-subtitle");
+      container.add(noFollowersLabel);
+    }else {
+      for (final User follower : followers) {
+        // Create necessary GUI wrappers and components
+        FlowPanel userCard = new FlowPanel();
+
+        // Special processing for the app title, mainly for fade-out effect
+        HTML userName = new HTML("" +
+                "<div class='follower-name'>" + follower.getUserName() +
+                "<span class='paragraph-end-block'></span></div>");
+
+        final Image userImage = new Image();
+        userImage.setUrl(gallery.getUserImageURL(follower.getUserId()));
+        userImage.addErrorHandler(new ErrorHandler() {
+          public void onError(ErrorEvent event) {
+            userImage.setUrl(GalleryApp.DEFAULTUSERIMAGE);
+          }
+        });
+        userImage.addClickHandler(new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent event) {
+            Ode.getInstance().switchToUserProfileView(follower.getUserId(), ProfilePage.PUBLIC);
+          }
+        });
+
+        userName.addClickHandler(new ClickHandler() {
+          //  @Override
+          public void onClick(ClickEvent event) {
+            Ode.getInstance().switchToUserProfileView(follower.getUserId(), ProfilePage.PUBLIC);
+          }
+        });
+
+        // Add everything to the top-level stuff
+        userCard.add(userImage);
+        userCard.add(userName);
+
+        // Add associated styling
+        userCard.addStyleName("profile-card");
+        userImage.addStyleName("gallery-card-cover");
+
+        container.add(userCard);
+      }
+      container.addStyleName("gallery-app-collection");
+      container.addStyleName("clearfix"); /* For redesigned navigation buttons */
+    }
   }
 
   /**

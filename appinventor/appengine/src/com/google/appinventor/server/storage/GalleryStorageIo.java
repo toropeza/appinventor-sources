@@ -10,6 +10,7 @@ package com.google.appinventor.server.storage;
 import java.util.List;
 
 import com.google.appinventor.shared.rpc.project.Email;
+import com.google.appinventor.shared.rpc.project.Followers;
 import com.google.appinventor.shared.rpc.project.GalleryApp;
 import com.google.appinventor.shared.rpc.project.GalleryAppListResult;
 import com.google.appinventor.shared.rpc.project.GalleryAppReport;
@@ -17,7 +18,7 @@ import com.google.appinventor.shared.rpc.project.GalleryComment;
 import com.google.appinventor.shared.rpc.project.GalleryCommentReport;
 import com.google.appinventor.shared.rpc.project.GalleryModerationAction;
 import com.google.appinventor.shared.rpc.project.GalleryReportListResult;
-
+import com.google.appinventor.shared.rpc.project.GalleryProfileMeta;
 
 
 /**
@@ -351,4 +352,47 @@ public interface GalleryStorageIo {
    * @return list of GalleryModerationAction
    */
   List<GalleryModerationAction> getModerationActions(long reportId);
+
+  /**
+   * Adds the followerId to the user's list of followers
+   * @param userId The user who added a new follower
+   * @param followerId The userId to be followed
+   * */
+  void addFollower(String userId, String followerId);
+
+  /**
+   * Checks to see if the user is following the given userId
+   * @param userId The user
+   * @param followerId The id of user to check
+   * @return whether the user is following the given followerId
+   * */
+  boolean isFollower(String userId, String followerId);
+
+  /**
+   * Grabs all of the followers of the given userId
+   * @param userId the userId to grab followers for
+   * @return the Followers object wrapping all of the users
+   * */
+  Followers getFollowers(String userId);
+
+  /**
+   * Grabs how many users are following the given userID
+   * @param userId The userId of the user to check
+   * @return how many followers the user has
+   * */
+  Integer getFollowerCount(String userId);
+
+  /**
+   * Grabs metadata for the user including total number of likes/downloads on all apps
+   * @param userId The userId
+   * @return the object containing all metadata for the user
+   * */
+  GalleryProfileMeta getUserMeta(String userId);
+
+  /**
+   * Removed the follower for the given userId
+   * @param userId The user removing a follower
+   * @param followerId The user to unfollow
+   * */
+  void removeFollower(String userId, String followerId);
 }

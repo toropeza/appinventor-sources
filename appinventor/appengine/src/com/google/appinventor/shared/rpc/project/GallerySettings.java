@@ -218,7 +218,7 @@ public class GallerySettings implements IsSerializable {
 
   /**
    * get the user image location based on given userid (Development Server)
-   * @param location location of image on development server
+   * @param userid user id
    * @return location of user image
    */
   public String getUserImageLocation(String userid) {

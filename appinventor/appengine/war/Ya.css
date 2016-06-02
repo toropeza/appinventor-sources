@@ -1471,10 +1471,10 @@ textarea::-webkit-input-placeholder {
   background-color: #8fc202;
   margin-bottom: 4px;
   clear: both;
+  padding:5px;
 }
 
 .search-compontent {
-  margin:5px 0 5px 0;
 }
 
 /* Gallery-specific styles */
@@ -1541,6 +1541,7 @@ textarea::-webkit-input-placeholder {
 .ode-UserProfileWrapper .profile-textdisplay {
   font-size: 14px;
   margin-bottom: 20px;
+  margin-top:10px;
   display: inline-block;
 }
 .ode-UserProfileWrapper .profile-textdisplay {
@@ -1701,10 +1702,7 @@ textarea::-webkit-input-placeholder {
 }
 .gallery-app-collection .gallery-card:hover,
 .gallery-app-showcase .gallery-card:hover {
-  background-color: #EEE;
-  -webkit-transition: background-color 1s ease;
-  -moz-transition: background-color 1s ease;
-  -o-transition: background-color 1s ease;
+  -webkit-box-shadow: 0 0px 10px rgba(0, 0, 0, 0.28);
   cursor: pointer;
 }
 .gallery-app-showcase .gallery-card {
@@ -2300,4 +2298,137 @@ textarea::-webkit-input-placeholder {
   display: block;
   height: 0;
   clear: both;
+}
+.profile-bio-textarea {
+  width: 100%;
+  height: 100px;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+.profile-bio-public {
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #666;
+  margin-bottom: 20px;
+}
+.gallery-toolbar {
+  width: 950px;
+  margin: 0 auto;
+  padding:5px;
+}
+.gallery-toolbar-icon {
+  float:right;
+  cursor: pointer;
+  margin-left: 20px;
+  width:35px;
+  height:35px;
+}
+.gallery-avatar-wrapper{
+  border-radius: 20px;
+}
+.gallery-toolbar-name {
+  float: right;
+  color: white;
+  cursor: pointer;
+  margin: 8px;
+  margin-right:12%;
+}
+.gallery-name-length-error{
+  float: right;
+  margin-right: 12%;
+  color: red;
+}
+.profile-card {
+  margin: 5px;
+  padding: 13px;
+  height: 242px;
+  width: 160px;
+  float: left;
+  text-align:center;
+  overflow:hidden;
+  position: relative;
+  text-decoration: none;
+  cursor:pointer;
+  vertical-align: top;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  -moz-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  -ms-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  -webkit-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.profile-card:hover {
+  -webkit-box-shadow: 0 0px 10px rgba(0, 0, 0, 0.28);
+}
+.followers-label{
+  font-size: 28px;
+  font-family: "Roboto",Arial,sans-serif;
+  text-transform: uppercase;
+  padding: 5px;
+  margin: 0;
+  border: none;
+  border-style: none;
+  background: none;
+  background-color: none;
+  margin-right: 10px;
+  font-weight:300;
+}
+.no-follower-label {
+  font-size: 17px;
+  font-family: "Roboto",Arial,sans-serif;
+  text-transform: uppercase;
+  padding: 5px;
+  margin: 0;
+  border: none;
+  border-style: none;
+  background: none;
+  background-color: none;
+  margin-right: 10px;
+  font-weight:300;
+}
+.add-follower {
+  color: #fff;
+  line-height: 36px;
+  text-shadow: none;
+  border-radius: 0;
+  cursor:pointer;
+  text-transform: uppercase;
+  background-color: #b3c833;
+  background-position: 0 0;
+  background-image: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: none;
+  text-transform: uppercase;
+  border-color: none;
+}
+.remove-follower{
+  color: #fff;
+  line-height: 36px;
+  cursor:pointer;
+  text-shadow: none;
+  border-radius: 0;
+  text-transform: uppercase;
+  background-color: #FF0000;
+  background-position: 0 0;
+  background-image: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border: none;
+  border-color: none;
+}
+.follower-name {
+  margin-top:10px;
+  font-size: 14px;
+  font-weight: 900;
+}
+.more-followers-label{
+  text-transform: uppercase;
+  padding: 5px;
+  width: 100px;
+  color: #777;
+  margin-left: 5px;
+  cursor:pointer;
 }
