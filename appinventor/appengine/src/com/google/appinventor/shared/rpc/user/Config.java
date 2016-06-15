@@ -1,6 +1,5 @@
 // -*- mode: java; c-basic-offset: 2; -*-
-// Copyright 2009-2011 Google, All Rights reserved
-// Copyright 2011-2012 MIT, All rights reserved
+// Copyright 2014-2015 MIT, All rights reserved
 // Released under the Apache License, Version 2.0
 // http://www.apache.org/licenses/LICENSE-2.0
 
@@ -24,6 +23,7 @@ public class Config implements IsSerializable, Serializable {
   private String libraryUrl;
   private String getStartedUrl;
   private String tutorialsUrl;
+  private String extensionsUrl;
   private String troubleshootingUrl;
   private String forumsUrl;
   private String feedbackUrl;
@@ -32,6 +32,7 @@ public class Config implements IsSerializable, Serializable {
   private String logoUrl;
   private String guideUrl;
   private String referenceComponentsUrl;
+  private String firebaseURL;   // Default Firebase URL
 
   public Config() {
   }
@@ -76,8 +77,16 @@ public class Config implements IsSerializable, Serializable {
     this.getStartedUrl = getStartedUrl;
   }
 
+  public String getExtensionsUrl() {
+    return extensionsUrl;
+  }
+
   public String getTutorialsUrl() {
     return tutorialsUrl;
+  }
+
+  public void setExtensionsUrl(String extensionsUrl) {
+    this.extensionsUrl = extensionsUrl;
   }
 
   public void setTutorialsUrl(String tutorialsUrl) {
@@ -147,4 +156,13 @@ public class Config implements IsSerializable, Serializable {
   public void setReferenceComponentsUrl(String referenceComponentsUrl) {
     this.referenceComponentsUrl = referenceComponentsUrl;
   }
+
+  public String getFirebaseURL() {
+    return firebaseURL;
+  }
+
+  public void setFirebaseURL(String url) {
+    firebaseURL = url;
+  }
+
 }
